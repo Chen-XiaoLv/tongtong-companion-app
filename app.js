@@ -165,3 +165,282 @@ function releasePetal() {
 }
 
 if (flowerOrbit) window.setInterval(releasePetal, 560);
+
+const petStateBoard = document.querySelector('#petStateBoard');
+if (petStateBoard) {
+  const petStates = {
+    morning: { name: '打招呼', image: 'tongtong-morning.png', quote: '你好呀！以后请多关照～', hint: '每一天第一次见面，都会多一点熟悉。', voice: '今天的事情，我们慢慢来。我已经准备好陪你开工啦！' },
+    working: { name: '工作中', image: 'tongtong-working.png', quote: '任务有点多，我们一个一个来，我在呢。', hint: '把眼前的一件事做好，就已经很厉害。', voice: '现在先把最重要的一件处理掉，剩下的我陪你慢慢拆开。' },
+    proud: { name: '真棒', image: 'tongtong-proud.png', quote: '哇——今天这个进度真的很漂亮！', hint: '每一次完成，都是一起行动过的痕迹。', voice: '我申请立刻给你发一朵小红花！今天的你真的很棒。' },
+    cheer: { name: '欢呼', image: 'tongtong-cheer.png', quote: '这个项目终于结束啦！！', hint: '今天值得好好庆祝一下。', voice: '我宣布今晚必须夸你三分钟！辛苦啦，完成得漂亮！' },
+    reminder: { name: '提醒', image: 'tongtong-reminder.png', quote: '这个事情快到时间了，我们一起看一眼。', hint: '认真提醒，是为了让你更从容。', voice: '不用着急，我先把需要注意的地方整理给你，我们一起处理。' },
+    confused: { name: '困惑', image: 'tongtong-confused.png', quote: '这个地方好像有点绕，我们一起理理。', hint: '卡住并不等于没有在前进。', voice: '先别急着否定自己，换一个角度，我们再试一次。' },
+    tired: { name: '累了', image: 'tongtong-tired.png', quote: '剩下的明天再说吧。今天已经够努力啦。', hint: '累的时候，也可以慢一点。', voice: '今天先到这里也没关系。你已经走了很远，休息一下吧。' },
+    rest: { name: '休息下', image: 'tongtong-rest.png', quote: '把今天的疲惫交给夜色，轻一点。', hint: '暂停不是落后，是给自己留一点空间。', voice: '喝口水，伸个懒腰。明天的路，我们明天再一起走。' },
+    success: { name: '胜利', image: 'tongtong-success.png', quote: '完成！今天的认真已经被好好收下。', hint: '通通会替你记得这份成长。', voice: '本周营业结束！辛苦辛苦辛苦啦——！' }
+  };
+  const image = document.querySelector('#petStateImage');
+  const name = document.querySelector('#petStateName');
+  const quote = document.querySelector('#petStateQuote');
+  const hint = document.querySelector('#petStateHint');
+  const voiceImage = document.querySelector('#voicePetImage');
+  const voiceLabel = document.querySelector('#voiceStateLabel');
+  const voiceLine = document.querySelector('#voiceLine');
+  const voiceDescription = document.querySelector('#voiceDescription');
+  const selectPetState = key => {
+    const state = petStates[key];
+    if (!state) return;
+    const source = `assets/time-weather/pets/${state.image}`;
+    if (image) { image.src = source; image.alt = `${state.name}状态的通通`; }
+    if (name) name.textContent = state.name;
+    if (quote) quote.textContent = state.quote;
+    if (hint) hint.textContent = state.hint;
+    if (voiceImage) { voiceImage.src = source; voiceImage.alt = `${state.name}状态的通通`; }
+    if (voiceLabel) voiceLabel.textContent = `${state.name} · 正在对你说`;
+    if (voiceLine) voiceLine.textContent = `“${state.voice}”`;
+    if (voiceDescription) voiceDescription.textContent = '情绪不只是表情，它也会根据当天的状态改变陪伴你的方式。';
+    petStateBoard.querySelectorAll('[data-pet-state]').forEach(button => button.classList.toggle('is-active', button.dataset.petState === key));
+  };
+  petStateBoard.querySelectorAll('[data-pet-state]').forEach(button => {
+    const activate = () => selectPetState(button.dataset.petState);
+    button.addEventListener('click', activate);
+    button.addEventListener('mouseenter', activate);
+    button.addEventListener('focus', activate);
+  });
+}
+
+const energyRulesButton = document.querySelector('#energyRulesButton');
+const energyRules = document.querySelector('#energyRules');
+energyRulesButton?.addEventListener('click', () => {
+  const opened = energyRulesButton.getAttribute('aria-expanded') === 'true';
+  energyRulesButton.setAttribute('aria-expanded', String(!opened));
+  if (energyRules) energyRules.hidden = opened;
+});
+
+const wishCard = document.querySelector('#wishCard');
+const wishNext = document.querySelector('#wishNext');
+if (wishCard) {
+  const wishes = [
+    ['🌙 今日祈愿', '山高路远，自有花开。', '不必急着证明今天有没有意义。很多事情，本来就需要慢慢发生。'],
+    ['☀ 今日祈愿', '风会吹散一些疲惫。', '今天没有做到的事，不代表明天也做不到。'],
+    ['🌸 今日祈愿', '你已经比早晨多走了一段路。', '能走到这里，就值得被认真夸一次。']
+  ];
+  let wishIndex = 0;
+  const flipWish = () => {
+    const flipped = wishCard.classList.toggle('is-flipped');
+    wishCard.setAttribute('aria-pressed', String(flipped));
+  };
+  const showWish = () => {
+    wishIndex = (wishIndex + 1) % wishes.length;
+    const [kicker, title, copy] = wishes[wishIndex];
+    const wasFlipped = wishCard.classList.contains('is-flipped');
+    wishCard.classList.remove('is-flipped');
+    wishCard.setAttribute('aria-pressed', 'false');
+    document.querySelector('#wishKicker').textContent = kicker;
+    document.querySelector('#wishTitle').textContent = title;
+    document.querySelector('#wishCopy').textContent = copy;
+    if (wasFlipped) requestAnimationFrame(() => wishCard.classList.add('is-flipped'));
+  };
+  wishCard.addEventListener('click', flipWish);
+  wishCard.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); flipWish(); } });
+  wishNext?.addEventListener('click', showWish);
+}
+
+const knowledgeCloud = document.querySelector('#keywordCloud');
+if (knowledgeCloud) {
+  const attentionTopic = document.querySelector('#attentionTopic');
+  const attentionDetail = document.querySelector('#attentionDetail');
+  const showAttention = button => {
+    if (!button) return;
+    knowledgeCloud.querySelectorAll('.attention-keyword').forEach(item => item.classList.toggle('is-active', item === button));
+    if (attentionTopic) attentionTopic.textContent = button.dataset.topic || '';
+    if (attentionDetail) attentionDetail.textContent = button.dataset.detail || '';
+  };
+  knowledgeCloud.querySelectorAll('.attention-keyword').forEach(button => {
+    button.addEventListener('click', () => showAttention(button));
+    button.addEventListener('mouseenter', () => showAttention(button));
+    button.addEventListener('focus', () => showAttention(button));
+  });
+}
+
+const techToggle = document.querySelector('#techToggle');
+const techPanel = document.querySelector('#techPanel');
+techToggle?.addEventListener('click', () => {
+  const expanded = techToggle.getAttribute('aria-expanded') === 'true';
+  techToggle.setAttribute('aria-expanded', String(!expanded));
+  techToggle.querySelector('b').textContent = expanded ? 'OFF' : 'ON';
+  if (techPanel) techPanel.hidden = expanded;
+});
+
+const knowledgeSearchButton = document.querySelector('#runKnowledgeSearch');
+const knowledgeQuery = document.querySelector('#knowledgeQuery');
+const searchStatus = document.querySelector('#searchStatus');
+const searchResults = document.querySelector('#searchResults');
+const runKnowledgeSearch = () => {
+  if (!searchResults || !searchStatus) return;
+  const query = knowledgeQuery?.value.trim() || '这条线索';
+  searchStatus.textContent = `已根据“${query}”整理出 3 个可能相关的内容（演示结果）`;
+  searchResults.classList.remove('is-refreshed');
+  requestAnimationFrame(() => searchResults.classList.add('is-refreshed'));
+};
+knowledgeSearchButton?.addEventListener('click', runKnowledgeSearch);
+knowledgeQuery?.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); runKnowledgeSearch(); } });
+
+document.querySelectorAll('[data-interest-action]').forEach(button => button.addEventListener('click', () => {
+  const feedback = document.querySelector('#interestFeedback');
+  const following = button.dataset.interestAction === 'follow';
+  if (feedback) feedback.textContent = following ? '已在演示页里把「实体消歧」放到更近的位置。' : '已在演示页里降低这类主题的出现频率。';
+  button.closest('.discover-actions')?.querySelectorAll('[data-interest-action]').forEach(item => item.classList.toggle('is-selected', item === button));
+}));
+
+const privacyFeedback = document.querySelector('#privacyFeedback');
+const updatePrivacyFeedback = () => {
+  const paused = document.querySelector('#pauseKnowledge')?.checked;
+  const multimodal = document.querySelector('#multimodalSwitch')?.checked;
+  if (!privacyFeedback) return;
+  if (paused) privacyFeedback.textContent = '演示状态：知识更新已暂停，花园不会读取任何新内容。';
+  else if (!multimodal) privacyFeedback.textContent = '演示状态：仅保留文字入口，图片、音频与视频理解已关闭。';
+  else privacyFeedback.textContent = '当前：仅展示演示范围，不进行实际扫描。';
+};
+document.querySelector('#pauseKnowledge')?.addEventListener('change', updatePrivacyFeedback);
+document.querySelector('#multimodalSwitch')?.addEventListener('change', updatePrivacyFeedback);
+document.querySelector('#scopeButton')?.addEventListener('click', () => { if (privacyFeedback) privacyFeedback.textContent = '演示范围：只会在你明确授权的目录中查看新增或更新的文件。'; });
+
+let demoToastTimer;
+const showDemoToast = message => {
+  let toast = document.querySelector('#demoToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'demoToast';
+    toast.className = 'demo-toast';
+    toast.setAttribute('role', 'status');
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  clearTimeout(demoToastTimer);
+  demoToastTimer = window.setTimeout(() => toast.remove(), 3400);
+};
+document.querySelectorAll('[data-demo-message]').forEach(button => button.addEventListener('click', () => showDemoToast(button.dataset.demoMessage || '这是一个本地演示操作。')));
+
+const workPage = document.querySelector('.page-work');
+if (workPage) {
+  let workToastTimer;
+  const showWorkToast = message => {
+    let toast = document.querySelector('#workToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'workToast';
+      toast.className = 'work-toast';
+      toast.setAttribute('role', 'status');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    clearTimeout(workToastTimer);
+    workToastTimer = window.setTimeout(() => toast.remove(), 3400);
+  };
+
+  document.querySelectorAll('[data-work-scroll]').forEach(button => button.addEventListener('click', () => {
+    document.querySelector(`#${button.dataset.workScroll}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+
+  const morningCount = document.querySelector('#morningCount');
+  const refreshMorningCount = () => {
+    const remaining = [...document.querySelectorAll('.morning-task')].filter(task => !task.classList.contains('is-done')).length;
+    if (morningCount) morningCount.textContent = String(remaining);
+  };
+  document.querySelectorAll('.morning-task').forEach(task => task.addEventListener('click', () => {
+    task.classList.toggle('is-done');
+    refreshMorningCount();
+    showWorkToast(task.classList.contains('is-done') ? '已在晨报演示中标记完成。' : '已恢复为今日待处理事项。');
+  }));
+  document.querySelectorAll('[data-work-message]').forEach(button => button.addEventListener('click', () => showWorkToast(button.dataset.workMessage || '已更新本地演示面板。')));
+
+  document.querySelectorAll('.risk-item').forEach(item => item.addEventListener('click', () => {
+    const feedback = document.querySelector('#riskFeedback');
+    const label = item.querySelector('b')?.textContent || '这项风险';
+    if (feedback) feedback.textContent = `已在演示雷达中打开「${label}」的处理入口。`;
+    item.classList.toggle('is-reviewed');
+  }));
+
+  document.querySelector('#addMailTask')?.addEventListener('click', () => {
+    const task = document.querySelectorAll('.morning-task')[1];
+    task?.classList.remove('is-done');
+    refreshMorningCount();
+    showWorkToast('已加入今天的工作面板（演示）。');
+  });
+
+  const dailyFeedback = document.querySelector('#dailyFeedback');
+  const sendDaily = document.querySelector('#sendDaily');
+  document.querySelector('#previewDaily')?.addEventListener('click', () => {
+    sendDaily?.removeAttribute('disabled');
+    if (dailyFeedback) dailyFeedback.textContent = '日报预览已准备好：内容来自本页展示的确认工作记录。';
+  });
+  sendDaily?.addEventListener('click', () => {
+    sendDaily.setAttribute('disabled', '');
+    if (dailyFeedback) dailyFeedback.textContent = '演示发送已确认：不会产生真实邮件。';
+    showWorkToast('今日日报已完成演示确认。');
+  });
+
+  const weeklyPages = ['本周总览 + 关键词词云', '周一至周五工作时间线', '挑战与解决方案', '核心工作与量化指标', '重点成果 + 完成率 + 本周评价', '本周总结'];
+  document.querySelectorAll('#pptPageButtons button').forEach((button, index) => button.addEventListener('click', () => {
+    document.querySelectorAll('#pptPageButtons button').forEach(item => item.classList.remove('is-active'));
+    button.classList.add('is-active');
+    const label = String(index + 1).padStart(2, '0');
+    const slideLabel = document.querySelector('#pptSlideLabel');
+    const slideCopy = document.querySelector('#pptSlideCopy');
+    const weeklyTitle = document.querySelector('#weeklyTitle');
+    if (slideLabel) slideLabel.textContent = label;
+    if (slideCopy) slideCopy.textContent = weeklyPages[index];
+    if (weeklyTitle) weeklyTitle.textContent = weeklyPages[index];
+  }));
+
+  document.querySelectorAll('#workStyleSwitcher [data-work-style]').forEach(button => button.addEventListener('click', () => {
+    document.querySelectorAll('#workStyleSwitcher [data-work-style]').forEach(item => item.classList.toggle('is-active', item === button));
+    const feedback = document.querySelector('#styleFeedback');
+    if (feedback) feedback.textContent = `当前为「${button.dataset.workStyle}」演示主题。`;
+  }));
+
+  const sendState = document.querySelector('#sendState');
+  const confirmFeedback = document.querySelector('#confirmFeedback');
+  document.querySelector('#confirmPreview')?.addEventListener('click', () => {
+    if (sendState) sendState.textContent = '已预览，等待你的确认';
+    if (confirmFeedback) confirmFeedback.textContent = '这是本地预览，不会向任何收件人发送邮件。';
+  });
+  document.querySelector('#confirmSend')?.addEventListener('click', () => {
+    if (sendState) sendState.textContent = '演示确认完成';
+    if (confirmFeedback) confirmFeedback.textContent = '演示发送已完成，没有发送真实邮件。';
+    showWorkToast('已完成发送确认演示。');
+  });
+
+  let morningTime = '09:00';
+  let eveningTime = '18:00';
+  const refreshSetup = () => {
+    const ready = document.querySelector('#setupReady');
+    const times = ready?.querySelectorAll('span');
+    if (times?.[0]) times[0].textContent = `晨报　${morningTime}`;
+    if (times?.[1]) times[1].textContent = `晚报　${eveningTime}`;
+  };
+  document.querySelectorAll('[data-setup-time]').forEach(button => button.addEventListener('click', () => {
+    morningTime = button.dataset.setupTime || morningTime;
+    document.querySelectorAll('[data-setup-time]').forEach(item => item.classList.toggle('is-selected', item === button));
+    const line = document.querySelector('#setupUserLine');
+    if (line) line.textContent = `你：${morningTime.replace(':00', ' 点').replace(':30', ' 点半')}。`;
+    refreshSetup();
+  }));
+  document.querySelectorAll('[data-setup-evening]').forEach(button => button.addEventListener('click', () => {
+    eveningTime = button.dataset.setupEvening || eveningTime;
+    document.querySelectorAll('[data-setup-evening]').forEach(item => item.classList.toggle('is-selected', item === button));
+    refreshSetup();
+  }));
+  document.querySelector('#testMorning')?.addEventListener('click', () => {
+    const feedback = document.querySelector('#setupFeedback');
+    if (feedback) feedback.textContent = `测试晨报已在演示中安排到明天 ${morningTime}，不会发送真实邮件。`;
+    showWorkToast('测试晨报已完成本地演示。');
+  });
+
+  document.querySelectorAll('#promptBubbles button').forEach(button => button.addEventListener('click', () => {
+    const feedback = document.querySelector('#promptFeedback');
+    if (feedback) feedback.textContent = `通通收到：“${button.textContent}”—— 已在今天的演示工作面板中理解这句话。`;
+    document.querySelectorAll('#promptBubbles button').forEach(item => item.classList.toggle('is-active', item === button));
+  }));
+}
