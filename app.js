@@ -3,6 +3,17 @@ document.querySelectorAll('[src^="../skills/tongtong-daily-companion/assets/"]')
   const source = image.getAttribute('src');
   if (source) image.src = source.replace('../skills/tongtong-daily-companion/assets/', 'assets/shared/');
 });
+const brandLogo = 'assets/brand/tongtong-logo.png';
+document.querySelectorAll('.brand-mark').forEach(mark => {
+  mark.innerHTML = `<img src="${brandLogo}" alt="通通搭子">`;
+});
+if (!document.querySelector('link[rel="icon"]')) {
+  const favicon = document.createElement('link');
+  favicon.rel = 'icon';
+  favicon.type = 'image/png';
+  favicon.href = brandLogo;
+  document.head.append(favicon);
+}
 document.querySelectorAll('.topbar nav').forEach(nav => {
   if (!nav.querySelector('a[href="newcomer-guide.html"]')) {
     const guideLink = document.createElement('a');
@@ -51,6 +62,38 @@ document.querySelectorAll('.theme-label-button').forEach(button => {
 document.querySelectorAll('.theme-swatch').forEach(swatch => swatch.addEventListener('click', () => openThemeGallery(swatch.dataset.theme)));
 document.querySelector('#closeThemes')?.addEventListener('click', () => dialog.close());
 dialog?.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+
+const storyCarousel = document.querySelector('#xunxianCarousel');
+if (storyCarousel) {
+  const storySlides = [
+    ['assets/home/xunxian-story-01.png', '小娅想对你说：关于通通搭子的设计故事'],
+    ['assets/home/xunxian-story-02.png', '为什么会有通通搭子：替你收好容易散落的工作事项'],
+    ['assets/home/xunxian-story-03.png', '我们想做的不只是一个工具：早安站、白天站与晚安站'],
+    ['assets/home/xunxian-story-04.png', '不只是帮你完成一次任务：百花听风与通通小镇长期陪伴'],
+    ['assets/home/xunxian-story-05.png', '懂联通、懂工作、也懂你：通通搭子的设计理念']
+  ];
+  const slide = storyCarousel.querySelector('.xunxian-slide');
+  const dots = [...storyCarousel.querySelectorAll('.carousel-dots button')];
+  let currentStory = 0;
+  const showStory = index => {
+    currentStory = (index + storySlides.length) % storySlides.length;
+    slide.src = storySlides[currentStory][0];
+    slide.alt = storySlides[currentStory][1];
+    storyCarousel.setAttribute('aria-label', `通通搭子设计故事，第 ${currentStory + 1} 页，共 ${storySlides.length} 页`);
+    dots.forEach((dot, dotIndex) => {
+      const active = dotIndex === currentStory;
+      dot.classList.toggle('is-active', active);
+      dot.toggleAttribute('aria-current', active);
+    });
+  };
+  storyCarousel.querySelector('.is-prev')?.addEventListener('click', () => showStory(currentStory - 1));
+  storyCarousel.querySelector('.is-next')?.addEventListener('click', () => showStory(currentStory + 1));
+  dots.forEach((dot, index) => dot.addEventListener('click', () => showStory(index)));
+  storyCarousel.addEventListener('keydown', event => {
+    if (event.key === 'ArrowLeft') { event.preventDefault(); showStory(currentStory - 1); }
+    if (event.key === 'ArrowRight') { event.preventDefault(); showStory(currentStory + 1); }
+  });
+}
 
 const themeMilestones = [
   { name: '登天路，踏歌行', rarity: 'orange', unlock: '能量 Lv.6 解锁', theme: '荒古·寻仙' },

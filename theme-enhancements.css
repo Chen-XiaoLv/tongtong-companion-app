@@ -231,3 +231,21 @@ html{scroll-behavior:smooth}
 /* Homepage restored to the single visual product board. */
 .page-home .product-intro{display:none}
 .page-home .home-story-board{display:block}
+
+/* Full-width xunxian product poster at the end of the homepage. */
+.page-home .xunxian-poster{width:100%;margin:0;background:#f8f4ed;overflow:hidden}
+.page-home .xunxian-poster img{display:block;width:100%;height:auto}
+.page-home .xunxian-story{width:100%;margin:0;background:#f8f4ed;overflow:hidden}
+.page-home .xunxian-story img{display:block;width:100%;height:auto}
+.page-home .xunxian-carousel{position:relative;width:min(100%,1675px);aspect-ratio:1675/941;margin:0 auto;outline:none}
+.page-home .xunxian-slide{position:absolute!important;z-index:1;top:8.7%;right:10.3%;bottom:12.6%;left:10.3%;width:79.4%!important;height:78.7%!important;object-fit:cover;transition:opacity .24s ease}
+.page-home .xunxian-frame{position:absolute!important;z-index:2;inset:0;width:100%!important;height:100%!important;pointer-events:none}
+.page-home .carousel-control{position:absolute;z-index:3;top:38%;width:13%;height:25%;border:0;background:transparent;cursor:pointer;outline:none}.page-home .carousel-control.is-prev{left:0}.page-home .carousel-control.is-next{right:0}
+.page-home .carousel-control:focus-visible{outline:3px solid rgba(211,70,84,.72);outline-offset:-8px;border-radius:50%}
+.page-home .carousel-dots{position:absolute;z-index:4;bottom:2.85%;left:50%;display:flex;gap:16px;align-items:center;padding:7px 17px;border-radius:999px;background:rgba(255,255,255,.93);transform:translateX(-50%);box-shadow:0 3px 8px rgba(176,83,93,.12)}
+.page-home .carousel-dots button{width:12px;height:12px;padding:0;border:1px solid #e7b378;border-radius:50%;background:#fff7e9;cursor:pointer;transition:transform .2s ease,background .2s ease,box-shadow .2s ease}.page-home .carousel-dots button:hover,.page-home .carousel-dots button:focus-visible{transform:scale(1.25);outline:none}.page-home .carousel-dots button.is-active{border-color:#e43d47;background:#ed4c54;box-shadow:0 0 0 4px rgba(237,76,84,.16)}
+@media(max-width:680px){.page-home .xunxian-carousel{min-width:610px;left:50%;transform:translateX(-50%)}.page-home .xunxian-story{overflow:hidden}.page-home .carousel-dots{gap:9px;padding:5px 11px}.page-home .carousel-dots button{width:9px;height:9px}}
+
+/* Brand mascot replaces the former generic star mark in every top navigation. */
+.brand-mark{position:relative;overflow:hidden;background:#fff!important;box-shadow:0 5px 13px rgba(229,77,89,.18)!important}
+.brand-mark img{position:absolute!important;top:-5px;left:50%;width:78px!important;max-width:none!important;height:auto!important;transform:translateX(-50%);filter:drop-shadow(0 2px 2px rgba(184,62,72,.12))}
