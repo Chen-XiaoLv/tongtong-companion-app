@@ -33,24 +33,24 @@ const themes = [
   { id: 'shenyuan', name: '旧日·沉渊', palette: '深海 · 遗城 · 幽绿闪电', description: '穿过旧日遗城，让深海与雷鸣见证一次沉静远行。', top: 'assets/themes/abyss-shenyuan-top.png', bottom: 'assets/themes/abyss-shenyuan-bottom.png', unlock: '能量 Lv.4 解锁', achievement: '不可名状之城', rarity: 'purple' }
 ];
 
-const renderThemeGallery = selectedTheme => {
+const renderThemeGallery = (selectedTheme, showAll = false) => {
   const gallery = dialog?.querySelector('.theme-gallery');
   if (!gallery) return;
-  const displayedThemes = selectedTheme ? themes.filter(theme => theme.id === selectedTheme) : themes;
-  gallery.className = `theme-gallery theme-gallery-five${selectedTheme ? ' is-single' : ''}`;
+  const displayedThemes = selectedTheme && !showAll ? themes.filter(theme => theme.id === selectedTheme) : themes;
+  gallery.className = `theme-gallery theme-gallery-five${selectedTheme && !showAll ? ' is-single' : ''}`;
   gallery.innerHTML = displayedThemes.map(theme => `
-    <article class="theme-card theme-card-${theme.id}" data-theme-card="${theme.id}" tabindex="0">
+    <article class="theme-card theme-card-${theme.id}${theme.id === selectedTheme && showAll ? ' is-selected' : ''}" data-theme-card="${theme.id}" tabindex="0" aria-label="${theme.name}主题${theme.id === selectedTheme && showAll ? '，当前选择' : ''}">
       <div class="theme-preview theme-sky"><img src="${theme.top}" alt="${theme.name}主题天空景象"></div>
       <div class="theme-card-copy"><div><b>${theme.name}</b><span>${theme.palette}</span></div><p>${theme.description}</p></div>
       <div class="theme-preview theme-city"><img src="${theme.bottom}" alt="${theme.name}主题城市景象"></div>
     </article>`).join('');
 };
 
-const openThemeGallery = selectedTheme => {
+const openThemeGallery = (selectedTheme, showAll = false) => {
   if (!dialog) return;
-  renderThemeGallery(selectedTheme);
+  renderThemeGallery(selectedTheme, showAll);
   const title = dialog.querySelector('#themeDialogTitle');
-  if (title) title.textContent = selectedTheme ? `${themes.find(theme => theme.id === selectedTheme)?.name || ''}主题` : '五重主题，五片风景';
+  if (title) title.textContent = selectedTheme && !showAll ? `${themes.find(theme => theme.id === selectedTheme)?.name || ''}主题` : '五重主题，五片风景';
   if (!dialog.open) dialog.showModal();
 };
 
@@ -195,7 +195,6 @@ if (petStateBoard) {
     if (name) name.textContent = state.name;
     if (quote) quote.textContent = state.quote;
     if (hint) hint.textContent = state.hint;
-    if (voiceImage) { voiceImage.src = source; voiceImage.alt = `${state.name}状态的通通`; }
     if (voiceLabel) voiceLabel.textContent = `${state.name} · 正在对你说`;
     if (voiceLine) voiceLine.textContent = `“${state.voice}”`;
     if (voiceDescription) voiceDescription.textContent = '情绪不只是表情，它也会根据当天的状态改变陪伴你的方式。';
@@ -320,7 +319,40 @@ const showDemoToast = message => {
   clearTimeout(demoToastTimer);
   demoToastTimer = window.setTimeout(() => toast.remove(), 3400);
 };
-document.querySelectorAll('[data-demo-message]').forEach(button => button.addEventListener('click', () => showDemoToast(button.dataset.demoMessage || '这是一个本地演示操作。')));
+document.querySelectorAll('[data-demo-message]').forEach(button => button.addEventListener('click', () => {
+  if (button.closest('.world-news-grid')) return;
+  showDemoToast(button.dataset.demoMessage || '这是一个本地演示操作。');
+}));
+
+const relationDemos = {
+  '实体消歧的新评测集': {
+    summary: '这条演示资讯与「实体消歧」近期关注相连。',
+    signals: ['近 7 天内，「实体消歧」被提及 13 次，当前处于 Active。', 'OpenEA 与知识图谱在同一关注簇中，连接强度为 0.82。', '今天的项目资料中出现了“评测集”和“对齐”两项相邻线索。']
+  },
+  '多模态检索的实践笔记': {
+    summary: '这条演示资讯来自你近期的文件与图片检索线索。',
+    signals: ['最近 5 轮对话出现“图片、检索、统一入口”等关键词。', '「多模态知识图谱」当前位于活跃关注缓存的前 3 位。', '已授权资料中有 2 份内容同时关联图片线索与方案文档。']
+  },
+  '知识图谱产品化观察': {
+    summary: '这条演示资讯与正在形成的长期知识路径相关。',
+    signals: ['「知识图谱」连续关注 23 天，属于长期主题。', '它与 Agent、多模态检索和实体消歧形成 3 条稳定连接。', '本周新增长期笔记 4 条，均归入这一主题分支。']
+  }
+};
+let relationDialog;
+const showRelationDemo = button => {
+  const title = button.closest('article')?.querySelector('h3')?.textContent || '';
+  const demo = relationDemos[title];
+  if (!demo) return;
+  if (!relationDialog) {
+    relationDialog = document.createElement('dialog');
+    relationDialog.className = 'relation-dialog';
+    relationDialog.addEventListener('click', event => { if (event.target === relationDialog) relationDialog.close(); });
+    document.body.appendChild(relationDialog);
+  }
+  relationDialog.innerHTML = `<form method="dialog"><p>相关性演示 · 本地静态数据</p><h3>${title}</h3><p>${demo.summary}</p><ul class="relation-signals">${demo.signals.map(signal => `<li>${signal}</li>`).join('')}</ul><button type="submit">知道了</button></form>`;
+  relationDialog.showModal();
+};
+document.querySelectorAll('.world-news-grid button').forEach(button => button.addEventListener('click', () => showRelationDemo(button)));
 
 const workPage = document.querySelector('.page-work');
 if (workPage) {
@@ -382,15 +414,18 @@ if (workPage) {
   });
 
   const weeklyPages = ['本周总览 + 关键词词云', '周一至周五工作时间线', '挑战与解决方案', '核心工作与量化指标', '重点成果 + 完成率 + 本周评价', '本周总结'];
+  const weeklySlideImages = ['通通本地词云周报测试_01.png', '通通本地词云周报测试_02.png', '通通本地词云周报测试_03.png', '通通本地词云周报测试_04.png', '通通本地词云周报测试_05.png', '通通本地词云周报测试_06.png'];
   document.querySelectorAll('#pptPageButtons button').forEach((button, index) => button.addEventListener('click', () => {
     document.querySelectorAll('#pptPageButtons button').forEach(item => item.classList.remove('is-active'));
     button.classList.add('is-active');
     const label = String(index + 1).padStart(2, '0');
     const slideLabel = document.querySelector('#pptSlideLabel');
     const slideCopy = document.querySelector('#pptSlideCopy');
+    const slideImage = document.querySelector('#pptSlideImage');
     const weeklyTitle = document.querySelector('#weeklyTitle');
     if (slideLabel) slideLabel.textContent = label;
     if (slideCopy) slideCopy.textContent = weeklyPages[index];
+    if (slideImage) { slideImage.src = `assets/work/ppt-weekly/${weeklySlideImages[index]}`; slideImage.alt = `通通周报第 ${index + 1} 页：${weeklyPages[index]}`; }
     if (weeklyTitle) weeklyTitle.textContent = weeklyPages[index];
   }));
 
@@ -398,6 +433,8 @@ if (workPage) {
     document.querySelectorAll('#workStyleSwitcher [data-work-style]').forEach(item => item.classList.toggle('is-active', item === button));
     const feedback = document.querySelector('#styleFeedback');
     if (feedback) feedback.textContent = `当前为「${button.dataset.workStyle}」演示主题。`;
+    const themeMap = { '初樱': 'feisu', '流光': 'liuguang', '沉金': 'anjin' };
+    openThemeGallery(themeMap[button.dataset.workStyle], true);
   }));
 
   const sendState = document.querySelector('#sendState');
@@ -434,9 +471,17 @@ if (workPage) {
   }));
   document.querySelector('#testMorning')?.addEventListener('click', () => {
     const feedback = document.querySelector('#setupFeedback');
-    if (feedback) feedback.textContent = `测试晨报已在演示中安排到明天 ${morningTime}，不会发送真实邮件。`;
-    showWorkToast('测试晨报已完成本地演示。');
+    const previewDialog = document.querySelector('#morningEmailDialog');
+    if (previewDialog?.showModal) {
+      previewDialog.showModal();
+      if (feedback) feedback.textContent = `已打开填充后的测试晨报预览（${morningTime}），不会发送真实邮件。`;
+    } else {
+      const previewWindow = window.open('morning-email-preview.html', 'tongtongMorningPreview', 'popup,width=760,height=860,resizable=yes,scrollbars=yes');
+      if (!previewWindow) window.location.href = 'morning-email-preview.html';
+      if (feedback) feedback.textContent = '已在新窗口打开填充后的测试晨报预览，不会发送真实邮件。';
+    }
   });
+  document.querySelector('#closeMorningEmail')?.addEventListener('click', () => document.querySelector('#morningEmailDialog')?.close());
 
   document.querySelectorAll('#promptBubbles button').forEach(button => button.addEventListener('click', () => {
     const feedback = document.querySelector('#promptFeedback');
