@@ -489,3 +489,56 @@ if (workPage) {
     document.querySelectorAll('#promptBubbles button').forEach(item => item.classList.toggle('is-active', item === button));
   }));
 }
+// Static demonstrations for this round of long-term companion capabilities.
+const processSteps = {
+  ask: ['先把需要的信息问清楚。', '示例：日报需要收件人和日期；其余信息已经足够，通通不会重复追问。'],
+  progress: ['当前第 2 / 4 步：正在整理。', '通通会用文字告诉你已完成什么、预计还剩几步；不伪装成实时进度条。'],
+  confirm: ['重要动作，先确认再执行。', '示例：内容已经整理好；是否确认发送？这一步需要你的明确选择。'],
+  result: ['本次完成：3 项整理，1 份日报待确认。', '完成回执会说明数量、结果和下一步；异常会被翻译成自然语言，而不是只丢出报错。']
+};
+document.querySelectorAll('[data-process-step]').forEach(button => button.addEventListener('click', () => {
+  document.querySelectorAll('[data-process-step]').forEach(item => item.classList.toggle('is-active', item === button));
+  const [title, copy] = processSteps[button.dataset.processStep] || processSteps.ask;
+  const titleNode = document.querySelector('#processFeedbackTitle');
+  const copyNode = document.querySelector('#processFeedback');
+  if (titleNode) titleNode.textContent = title;
+  if (copyNode) copyNode.textContent = copy;
+}));
+
+document.querySelector('#loadCompanionDemo')?.addEventListener('click', () => {
+  const feedback = document.querySelector('#loadCompanionFeedback');
+  if (feedback) feedback.textContent = '演示恢复范围：本地状态 → 长期知识 → 通通小镇快照；当前这句话优先，不会连接真实资料。';
+});
+
+const townFactorDetails = {
+  knowledge: '知识总量：已经确认的长期知识，会让小镇多一盏可以回看的灯。',
+  collection: '花朵图鉴：每一次收获，都是小镇里一页新的植物志。',
+  flowers: '花朵总量：重复相遇也会留下记录，成为持续陪伴的温柔证据。',
+  energy: '能量等级：记录真实使用与完成的步伐，不是绩效分数。',
+  active: '活跃天数：只记录你与通通相遇的日子，不用每天打卡。'
+};
+const townBadgeDetails = {
+  'daily-report': ['日报相伴', '累计发送日报 5 篇', '演示进度：5 / 5，已在通通小镇收藏。'],
+  'knowledge-retained': ['知识花房', '主动沉淀知识 20 篇', '演示进度：13 / 20，继续收好真正值得复用的线索。'],
+  'user-praise': ['通通被夸啦！', '得到用户的表扬或夸奖', '演示进度：已收到一次真诚夸奖。'],
+  'user-dislike': ['直球接收器', '被用户嫌弃了', '演示进度：等待一条帮助通通变好的直球反馈。'],
+  'shared-joy': ['喜悦共振', '用户主动分享喜悦的情绪', '演示进度：已一起庆祝 1 次。'],
+  'shared-life': ['生活里的你', '用户主动分享生活中的事情', '演示进度：已听见 2 段生活小事。'],
+  'hint-adopted': ['默契一击', '主动提示被用户采纳', '演示进度：已采纳 3 次提示，默契度也会留下记录。'],
+  'task-summary': ['一起复盘', '主动与用户一起沉淀总结任务内容', '演示进度：已完成 2 次任务复盘。']
+};
+document.querySelectorAll('[data-town-factor]').forEach(button => button.addEventListener('click', () => {
+  document.querySelectorAll('[data-town-factor]').forEach(item => item.classList.toggle('is-active', item === button));
+  const feedback = document.querySelector('#townFactorFeedback');
+  if (feedback) feedback.textContent = townFactorDetails[button.dataset.townFactor] || '';
+}));
+document.querySelectorAll('[data-town-badge]').forEach(button => button.addEventListener('click', () => {
+  document.querySelectorAll('[data-town-badge]').forEach(item => item.classList.toggle('is-active', item === button));
+  const [name, condition, progress] = townBadgeDetails[button.dataset.townBadge] || townBadgeDetails['daily-report'];
+  const detail = document.querySelector('#townBadgeDetail');
+  if (detail) detail.innerHTML = `<p>${name} · 彩色互动成就</p><h3>${condition}</h3><span>${progress} 实体徽章仅作小镇陈列，不进入邮件内容。</span>`;
+}));
+document.querySelector('#townLoadDemo')?.addEventListener('click', () => {
+  const feedback = document.querySelector('#townLoadFeedback');
+  if (feedback) feedback.textContent = '演示恢复范围：本地状态、长期知识、通通小镇快照。没有发起真实读取、写入或腾讯文档访问。';
+});
