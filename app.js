@@ -542,3 +542,40 @@ document.querySelector('#townLoadDemo')?.addEventListener('click', () => {
   const feedback = document.querySelector('#townLoadFeedback');
   if (feedback) feedback.textContent = '演示恢复范围：本地状态、长期知识、通通小镇快照。没有发起真实读取、写入或腾讯文档访问。';
 });
+
+document.querySelectorAll('[data-capability-map]').forEach(map => {
+  const buttons = [...map.querySelectorAll('[data-capability-targets]')];
+  const nodes = [...map.querySelectorAll('[data-capability-node]')];
+  const feedback = map.querySelector('.capability-map-feedback');
+  const flow = map.querySelector('.capability-flow');
+  if (flow) {
+    const graph = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    graph.setAttribute('class', 'capability-graph-lines');
+    graph.setAttribute('viewBox', '0 0 1000 720');
+    graph.setAttribute('preserveAspectRatio', 'none');
+    graph.setAttribute('aria-hidden', 'true');
+    graph.innerHTML = `
+      <path data-capability-edge="agent,skill" d="M500 130 L500 190" />
+      <path data-capability-edge="skill,tool" d="M455 315 C390 350 250 360 167 402" />
+      <path data-capability-edge="skill,knowledge" d="M500 315 L500 402" />
+      <path data-capability-edge="skill,data" d="M545 315 C610 350 750 360 833 402" />
+      <path data-capability-edge="knowledge,workflow" d="M500 530 L500 590" />
+      <path data-capability-edge="data,workflow" d="M833 530 C760 570 635 582 545 610" />
+      <circle cx="500" cy="190" r="5" /><circle cx="500" cy="402" r="5" /><circle cx="500" cy="590" r="5" />`;
+    flow.prepend(graph);
+  }
+  const edges = [...map.querySelectorAll('[data-capability-edge]')];
+  buttons.forEach(button => button.addEventListener('click', () => {
+    buttons.forEach(item => item.classList.toggle('is-active', item === button));
+    const targets = (button.dataset.capabilityTargets || '').split(',');
+    const showAll = targets.includes('all');
+    nodes.forEach(node => node.classList.toggle('is-muted', !showAll && !targets.includes(node.dataset.capabilityNode)));
+    edges.forEach(edge => {
+      const ends = (edge.dataset.capabilityEdge || '').split(',');
+      edge.classList.toggle('is-muted', !showAll && !ends.every(end => targets.includes(end)));
+    });
+    if (feedback) feedback.textContent = showAll
+      ? '当前展示：该模块的完整协同链路。'
+      : `当前高亮：${button.textContent.trim()}的主要调用关系；未高亮能力可能按实际任务补充调用。`;
+  }));
+});
